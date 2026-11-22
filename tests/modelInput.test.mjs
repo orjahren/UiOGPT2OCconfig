@@ -5,6 +5,10 @@ import { createConfig } from "../dist/config.js";
 import { sampleResponse } from "../dist/me.js";
 import { ModelInputError, parseModelList } from "../dist/modelInput.js";
 
+test("bundled sample contains only the metadata needed for conversion", () => {
+  assert.deepEqual(parseModelList(JSON.stringify(sampleResponse)), sampleResponse);
+});
+
 test("parses pasted model data and uses it to generate config", () => {
   const model = {
     ...sampleResponse.find((item) => item.category === "yellow"),

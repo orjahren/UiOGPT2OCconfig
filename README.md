@@ -3,8 +3,9 @@
 Generate an OpenCode configuration for GPT UiO's red, yellow and green
 (Claude) providers.
 
-The wizard can use your model list or a bundled sample. The sample may be
-outdated; it is not live data from UiO.
+The wizard can use your model list or a bundled sample. The sample contains only
+the fields needed for conversion and may be outdated; it is not live data from
+UiO.
 
 ![The setup wizard selecting GPT UiO providers using the bundled sample](docs/wizard.png)
 
