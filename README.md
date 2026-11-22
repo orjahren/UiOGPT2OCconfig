@@ -1,6 +1,6 @@
 # GPT UiO to OpenCode
 
-Dette er en TUI-app som (1) tar en liste med hvilke modeller som finnes GPT UiO
+Dette er en TUI-app som (1) tar en liste med hvilke modeller som finnes på GPT UiO
 og (2) genererer en OpenCode-config som bruker disse modellene.
 
 Progget kjernefunksjonaliteten selv, mens testene, TUI-opplegget, og resten av
