@@ -2,7 +2,7 @@
 
 export type MeModelsResponse = MeModel[];
 
-export type ModelCategory = "red" | "yellow";
+export type ModelCategory = "green" | "yellow" | "red";
 export type MeModel = {
   model: string;
   name: string;
