@@ -43,3 +43,34 @@ test("rejects invalid metadata rather than generating incorrect capabilities", (
     /name must be a non-empty string/,
   );
 });
+
+test("rejects non-model entries and identifies the failing model", () => {
+  for (const invalid of [null, [], "model", 1]) {
+    assert.throws(
+      () => parseModelList(JSON.stringify([sampleResponse[0], invalid])),
+      /Model 2: expected an object/,
+    );
+  }
+});
+
+test("requires every conversion field with the correct type", () => {
+  const model = sampleResponse[0];
+  for (const field of ["model", "name", "category"]) {
+    for (const value of ["  ", 1, null]) {
+      assert.throws(
+        () => parseModelList(JSON.stringify([{ ...model, [field]: value }])),
+        new RegExp(`Model 1: ${field} must be a non-empty string`),
+      );
+    }
+  }
+  for (const field of [
+    "experimental", "images", "reasoning", "responses", "toolCallsDisabled", "depricated",
+  ]) {
+    for (const value of [undefined, "false", 0, null]) {
+      assert.throws(
+        () => parseModelList(JSON.stringify([{ ...model, [field]: value }])),
+        new RegExp(`Model 1: ${field} must be a boolean`),
+      );
+    }
+  }
+});

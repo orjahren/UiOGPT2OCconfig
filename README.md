@@ -65,3 +65,4 @@ token limits are not translated yet.
 ## Development
 
 Run `npm run typecheck` to check types and `npm test` to build and run tests.
+GitHub Actions runs the tests on Node.js 20.12 and 22 for pushes and pull requests.
