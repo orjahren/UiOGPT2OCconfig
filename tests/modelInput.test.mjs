@@ -1,9 +1,9 @@
-const assert = require("node:assert/strict");
-const { test } = require("node:test");
-const baseConfig = require("../dist/baseConfig").default;
-const { createConfig } = require("../dist/config");
-const { sampleResponse } = require("../dist/me");
-const { ModelInputError, parseModelList } = require("../dist/modelInput");
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import baseConfig from "../dist/baseConfig.js";
+import { createConfig } from "../dist/config.js";
+import { sampleResponse } from "../dist/me.js";
+import { ModelInputError, parseModelList } from "../dist/modelInput.js";
 
 test("parses pasted model data and uses it to generate config", () => {
   const model = {

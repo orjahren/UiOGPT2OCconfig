@@ -8,7 +8,8 @@ outdated; it is not live data from UiO.
 
 ## Get started
 
-You need Node.js (tested with Node.js 22), npm, `make`, and a terminal.
+You need Node.js 20.12 or newer (tested with Node.js 22), npm, `make`, and a
+terminal.
 
 ```sh
 npm install

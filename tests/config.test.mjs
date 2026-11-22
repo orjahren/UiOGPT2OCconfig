@@ -1,8 +1,8 @@
-const assert = require("node:assert/strict");
-const { test } = require("node:test");
-const baseConfig = require("../dist/baseConfig").default;
-const { createConfig } = require("../dist/config");
-const { sampleResponse } = require("../dist/me");
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import baseConfig from "../dist/baseConfig.js";
+import { createConfig } from "../dist/config.js";
+import { sampleResponse } from "../dist/me.js";
 
 test("selects providers, references keys, and leaves the base config unchanged", () => {
   const before = structuredClone(baseConfig);

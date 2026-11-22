@@ -8,10 +8,13 @@ import { ModelInputError, parseModelList } from "./modelInput";
 import type { ModelCategory, ModelInput } from "./types";
 import { getApiKeyName } from "./utils";
 
+import * as prompts from "@clack/prompts";
+
 const main = async () => {
-  const prompts = await import("@clack/prompts");
   if (!process.stdin.isTTY || !process.stdout.isTTY) {
-    throw new Error("Interactive setup requires a terminal. Run make run in a terminal.");
+    throw new Error(
+      "Interactive setup requires a terminal. Run make run in a terminal.",
+    );
   }
 
   prompts.intro("GPT UiO to OpenCode");
@@ -28,7 +31,11 @@ const main = async () => {
     message: "Where should the model list come from?",
     options: [
       { value: "paste", label: "Paste my model list from GPT UiO" },
-      { value: "sample", label: "Use the bundled sample", hint: "may be outdated" },
+      {
+        value: "sample",
+        label: "Use the bundled sample",
+        hint: "may be outdated",
+      },
     ],
   });
   if (prompts.isCancel(source)) {
@@ -38,9 +45,12 @@ const main = async () => {
 
   let models: ModelInput[] = sampleResponse;
   if (source === "paste") {
-    prompts.log.info("Copy only the model array from https://gpt.uio.no/api/user/me, not personal data.");
+    prompts.log.info(
+      "Copy only the model array from https://gpt.uio.no/api/user/me, not personal data.",
+    );
     const input = await prompts.multiline({
-      message: "Paste the JSON model array, then press Tab and Enter to submit.",
+      message:
+        "Paste the JSON model array, then press Tab and Enter to submit.",
       showSubmit: true,
       validate: (value) => {
         try {
@@ -57,7 +67,9 @@ const main = async () => {
     }
     models = parseModelList(input);
   } else {
-    prompts.log.warn("Using the bundled sample model list, which may be outdated.");
+    prompts.log.warn(
+      "Using the bundled sample model list, which may be outdated.",
+    );
   }
 
   const providers = await prompts.multiselect<ModelCategory>({
@@ -94,18 +106,23 @@ const main = async () => {
   }
 
   const trimmedOutput = output.trim();
-  const path = trimmedOutput === "~"
-    ? homedir()
-    : trimmedOutput.startsWith("~/")
-      ? join(homedir(), trimmedOutput.slice(2))
-      : isAbsolute(trimmedOutput) ? trimmedOutput : resolve(trimmedOutput);
+  const path =
+    trimmedOutput === "~"
+      ? homedir()
+      : trimmedOutput.startsWith("~/")
+        ? join(homedir(), trimmedOutput.slice(2))
+        : isAbsolute(trimmedOutput)
+          ? trimmedOutput
+          : resolve(trimmedOutput);
 
   let exists = false;
   try {
     await lstat(path);
     exists = true;
   } catch (error) {
-    if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) {
+    if (
+      !(error instanceof Error && "code" in error && error.code === "ENOENT")
+    ) {
       throw error;
     }
   }
@@ -122,10 +139,16 @@ const main = async () => {
   if (exists) summary.push("The existing file will be replaced.");
   prompts.note(summary.join("\n"), "Preview");
   if (missingKeys.length > 0) {
-    prompts.log.warn(`Missing environment variables: ${missingKeys.join(", ")}`);
+    prompts.log.warn(
+      `Missing environment variables: ${missingKeys.join(", ")}`,
+    );
   }
-  prompts.log.info("The output references environment variables; OpenCode must have them set.");
-  prompts.log.info("OpenCode automatically loads opencode.json(c) only in supported config locations.");
+  prompts.log.info(
+    "The output references environment variables; OpenCode must have them set.",
+  );
+  prompts.log.info(
+    "OpenCode automatically loads opencode.json(c) only in supported config locations.",
+  );
 
   const confirmed = await prompts.confirm({
     message: exists ? "Replace this file?" : "Write this file?",

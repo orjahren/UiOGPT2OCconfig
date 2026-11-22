@@ -1,11 +1,13 @@
 {
+  "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --noEmit && esbuild index.ts baseConfig.ts config.ts me.ts modelInput.ts utils.ts --bundle --splitting --platform=node --format=esm --packages=external --target=node20.12 --outdir=dist",
     "typecheck": "tsc --noEmit",
-    "test": "npm run build && node --test tests/*.test.cjs"
+    "test": "npm run build && node --test tests/*.test.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
   },
   "dependencies": {
