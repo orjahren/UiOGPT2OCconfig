@@ -4,7 +4,8 @@ import { isAbsolute, join, resolve } from "node:path";
 import baseConfig from "./baseConfig";
 import { sampleResponse } from "./me";
 import { createConfig, providerDetails } from "./config";
-import type { ModelCategory } from "./types";
+import { ModelInputError, parseModelList } from "./modelInput";
+import type { ModelCategory, ModelInput } from "./types";
 import { getApiKeyName } from "./utils";
 
 const main = async () => {
@@ -23,7 +24,41 @@ const main = async () => {
       .join("\n"),
     "API key environment variables",
   );
-  prompts.log.info("Using the bundled sample model list, not the live UiO API.");
+  const source = await prompts.select({
+    message: "Where should the model list come from?",
+    options: [
+      { value: "paste", label: "Paste my model list from GPT UiO" },
+      { value: "sample", label: "Use the bundled sample", hint: "may be outdated" },
+    ],
+  });
+  if (prompts.isCancel(source)) {
+    prompts.cancel("No config was written.");
+    return;
+  }
+
+  let models: ModelInput[] = sampleResponse;
+  if (source === "paste") {
+    prompts.log.info("Copy only the model array from https://gpt.uio.no/api/user/me, not personal data.");
+    const input = await prompts.multiline({
+      message: "Paste the JSON model array, then press Tab and Enter to submit.",
+      showSubmit: true,
+      validate: (value) => {
+        try {
+          parseModelList(value ?? "");
+        } catch (error) {
+          if (error instanceof ModelInputError) return error.message;
+          throw error;
+        }
+      },
+    });
+    if (prompts.isCancel(input)) {
+      prompts.cancel("No config was written.");
+      return;
+    }
+    models = parseModelList(input);
+  } else {
+    prompts.log.warn("Using the bundled sample model list, which may be outdated.");
+  }
 
   const providers = await prompts.multiselect<ModelCategory>({
     message: "Which providers should be included?",
@@ -75,7 +110,7 @@ const main = async () => {
     }
   }
 
-  const config = createConfig(baseConfig, sampleResponse, providers, includeDeprecated);
+  const config = createConfig(baseConfig, models, providers, includeDeprecated);
   const missingKeys = providers
     .map(getApiKeyName)
     .filter((name) => !process.env[name]?.trim());

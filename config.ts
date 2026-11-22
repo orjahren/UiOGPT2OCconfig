@@ -1,6 +1,5 @@
 import type {
-  MeModel,
-  MeModelsResponse,
+  ModelInput,
   ModelCategory,
   OpenCodeConfig,
   OpenCodeModel,
@@ -20,7 +19,7 @@ type GeneratedConfig = Omit<OpenCodeConfig, "provider"> & {
 
 const mergeModels = (
   existing: Record<string, OpenCodeModel>,
-  models: MeModel[],
+  models: ModelInput[],
   includeDeprecated: boolean,
 ): Record<string, OpenCodeModel> => {
   const result = { ...existing };
@@ -47,7 +46,7 @@ const mergeModels = (
 
 export const createConfig = (
   base: OpenCodeConfig,
-  models: MeModelsResponse,
+  models: ModelInput[],
   categories: ModelCategory[],
   includeDeprecated: boolean,
 ): GeneratedConfig => {

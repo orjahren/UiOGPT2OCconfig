@@ -1,9 +1,9 @@
-import type { MeModel, OpenCodeModel } from "./types";
+import type { ModelInput, OpenCodeModel } from "./types";
 
 export const getApiKeyName = (colour: string) =>
   `GPT_UIO_${colour.toUpperCase()}_KEY`;
 export const meModelToOpenCodeModel = (
-  model: MeModel,
+  model: ModelInput,
 ): [string, OpenCodeModel] => [
   model.model,
   {

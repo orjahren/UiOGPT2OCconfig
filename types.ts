@@ -22,6 +22,19 @@ export type MeModel = {
   domain: string;
 };
 
+export type ModelInput = Pick<
+  MeModel,
+  | "model"
+  | "name"
+  | "category"
+  | "experimental"
+  | "images"
+  | "reasoning"
+  | "responses"
+  | "toolCallsDisabled"
+  | "depricated"
+>;
+
 // --- OC (OpenCode) Models and Configurations
 
 export type OpenCodeConfig = {

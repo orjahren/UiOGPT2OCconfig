@@ -3,11 +3,8 @@
 Generate an OpenCode configuration for GPT UiO's red, yellow and green
 (Claude) providers.
 
-**The model list is a bundled sample**, not live data from UiO. To use your
-own list, sign in to GPT UiO, open
-[the `/api/user/me` endpoint](https://gpt.uio.no/api/user/me), and copy the
-relevant model array into `sampleResponse` in [`me.ts`](./me.ts), replacing
-the sample array. Copy only the model data, not personal information.
+The wizard can use your model list or a bundled sample. The sample may be
+outdated; it is not live data from UiO.
 
 ## Get started
 
@@ -17,6 +14,14 @@ You need Node.js (tested with Node.js 22), npm, `make`, and a terminal.
 npm install
 make run
 ```
+
+To use your list, sign in to GPT UiO, open
+[the `/api/user/me` endpoint](https://gpt.uio.no/api/user/me), and copy the
+model array. Choose **Paste my model list** in the wizard, paste the array, and
+press Tab then Enter. Copy only model data, not the full response or personal
+information. The wizard validates the array before continuing. Pasted data is
+used for this run and is not saved separately. Alternatively, choose **Use the
+bundled sample**.
 
 The wizard checks your API key variables, lets you choose providers and whether
 to include deprecated models, then previews the output before writing. Press
