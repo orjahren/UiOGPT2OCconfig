@@ -32,7 +32,7 @@ export type ModelInput = Pick<
   | "reasoning"
   | "responses"
   | "toolCallsDisabled"
-  | "depricated"
+  | "depricated" // TODO: Det er en typo i APIet, rip
 >;
 
 // --- OC (OpenCode) Models and Configurations
