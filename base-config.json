@@ -1,0 +1,85 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "disabled_providers": [
+    "opencode"
+  ],
+  "provider": {
+    "UiO red": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "GPT UIO red",
+      "options": {
+        "baseURL": "https://gpt.uio.no/api/v1",
+        "apiKey": "DIN RODE API NOKKEL"
+      },
+      "models": {
+        "gpt-oss-120b": {
+          "name": "GPT OSS"
+        },
+        "zai-org/GLM-5.3": {
+          "name": "Inferact/GLM-5.3-NVFP4"
+        }
+      }
+    },
+    "UiO yellow": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "GPT UIO yellow",
+      "options": {
+        "baseURL": "https://gpt.uio.no/api/v1",
+        "apiKey": "DIN GULE API NOKKEL"
+      },
+      "models": {
+        "mistralai/Mistral-Medium-3.5-128B": {
+          "name": "mistralai/Mistral-Medium-3.5-128B"
+        },
+        "NorwAI/NorwAI-Magistral-24B-reasoning": {
+          "name": "NorwAI/NorwAI-Magistral-24B-reasoning"
+        },
+        "Qwen/Qwen3.8-27B-FP8": {
+          "name": "Qwen/Qwen3.8-27B-FP8"
+        },
+        "moonshotai/Kimi-K2.6": {
+          "name": "moonshotai/Kimi-K2.6"
+        },
+        "google/gemma-4-31B-it": {
+          "name": "google/gemma-4-31B-it"
+        },
+        "NbAiLab/borealis-27b": {
+          "name": "NbAiLab/borealis-27b"
+        },
+        "norallm/normistral-11b-thinking": {
+          "name": "norallm/normistral-11b-thinking"
+        }
+      }
+    },
+    "UiO-Claude": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "Claude gjennom gpt.uio.no",
+      "options": {
+        "baseURL": "https://gpt.uio.no/api/claude/v1",
+        "headers": {
+          "Authorization": "DIN GRONNE API NOKKEL"
+        }
+      },
+      "models": {
+        "claude-fable-5": {
+          "name": "UiO: Claude Fable 5"
+        },
+        "claude-haiku-4-5": {
+          "name": "UiO: Claude Haiku 4.5"
+        },
+        "claude-opus-4-8": {
+          "name": "UiO: Claude Opus 4.8"
+        },
+        "claude-opus-5": {
+          "name": "UiO: Claude Opus 5"
+        },
+        "claude-sonnet-4-6": {
+          "name": "UiO: Claude Sonnet 4.6"
+        },
+        "claude-sonnet-5": {
+          "name": "UiO: Claude Sonnet 5"
+        }
+      }
+    }
+  }
+}
