@@ -6,6 +6,8 @@ Generate an OpenCode configuration for GPT UiO's red, yellow and green
 The wizard can use your model list or a bundled sample. The sample may be
 outdated; it is not live data from UiO.
 
+![The setup wizard selecting GPT UiO providers using the bundled sample](docs/wizard.png)
+
 ## Get started
 
 You need Node.js 20.12 or newer (tested with Node.js 22), npm, `make`, and a
