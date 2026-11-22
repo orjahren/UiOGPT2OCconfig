@@ -37,6 +37,11 @@ type Options = {
 
 export type OpenCodeModel = {
   name: string;
+  experimental?: boolean;
+  attachment?: boolean;
+  reasoning?: boolean;
+  tool_call?: boolean;
+  status?: "alpha" | "beta" | "deprecated" | "active";
   provider?: {
     npm?: string;
     api?: string;

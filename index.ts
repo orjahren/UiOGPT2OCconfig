@@ -33,10 +33,17 @@ const meModelToOpenCodeModel = (model: MeModel): [string, OpenCodeModel] => [
   model.model,
   {
     name: model.name,
+    experimental: model.experimental,
+    attachment: model.images,
+    reasoning: model.reasoning,
+    tool_call: !model.toolCallsDisabled,
+    ...(model.depricated ? { status: "deprecated" as const } : {}),
     ...(model.responses ? { provider: { npm: "@ai-sdk/openai" } } : {}),
   },
 ];
 
+// TODO: Confirm the units for inputCost/outputCost before mapping to OpenCode cost.
+// TODO: Confirm whether maxTokens means context window or maximum output.
 const injectAdditionalModels = (
   baseConfig: OpenCodeConfig,
   myModels: MeModelsResponse,
