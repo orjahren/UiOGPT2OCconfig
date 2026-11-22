@@ -31,7 +31,10 @@ const getModelsByCategory = (myModels: MeModelsResponse) =>
 
 const meModelToOpenCodeModel = (model: MeModel): [string, OpenCodeModel] => [
   model.model,
-  { name: model.name },
+  {
+    name: model.name,
+    ...(model.responses ? { provider: { npm: "@ai-sdk/openai" } } : {}),
+  },
 ];
 
 const injectAdditionalModels = (

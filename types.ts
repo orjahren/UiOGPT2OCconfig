@@ -37,6 +37,10 @@ type Options = {
 
 export type OpenCodeModel = {
   name: string;
+  provider?: {
+    npm?: string;
+    api?: string;
+  };
 };
 
 type RedModels = Record<string, OpenCodeModel>;
