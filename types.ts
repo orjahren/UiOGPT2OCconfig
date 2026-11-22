@@ -30,71 +30,75 @@ export type OpenCodeConfig = {
   provider: Provider;
 };
 
-type Options = {
-  baseURL: string;
-  apiKey: string;
+type ModelModality = "text" | "audio" | "image" | "video" | "pdf";
+
+type ModelCost = {
+  input: number;
+  output: number;
+  cache_read?: number;
+  cache_write?: number;
 };
 
-export type OpenCodeModel = {
-  name: string;
-  experimental?: boolean;
+type OpenCodeModelConfig = {
+  id?: string;
+  name?: string;
+  family?: string;
+  release_date?: string;
   attachment?: boolean;
   reasoning?: boolean;
+  temperature?: boolean;
   tool_call?: boolean;
+  interleaved?: boolean | string | { field: string };
+  cost?: ModelCost & { context_over_200k?: ModelCost };
+  limit?: { context: number; input?: number; output: number };
+  modalities?: { input?: ModelModality[]; output?: ModelModality[] };
+  experimental?: boolean;
   status?: "alpha" | "beta" | "deprecated" | "active";
-  provider?: {
-    npm?: string;
-    api?: string;
+  provider?: { npm?: string; api?: string };
+  options?: Record<string, unknown>;
+  headers?: Record<string, string>;
+  variants?: Record<string, { disabled?: boolean; [option: string]: unknown }>;
+};
+
+export type OpenCodeModel = OpenCodeModelConfig & { name: string };
+
+type OpenCodeProviderConfig = {
+  api?: string;
+  name?: string;
+  env?: string[];
+  id?: string;
+  npm?: string;
+  whitelist?: string[];
+  blacklist?: string[];
+  options?: {
+    apiKey?: string;
+    baseURL?: string;
+    enterpriseUrl?: string;
+    setCacheKey?: boolean;
+    timeout?: number | false;
+    headerTimeout?: number | false;
+    chunkTimeout?: number | false;
+    [option: string]: unknown;
   };
+  models?: Record<string, OpenCodeModelConfig>;
 };
 
-type RedModels = Record<string, OpenCodeModel>;
-
-type UiORed = {
+type UiOProvider = OpenCodeProviderConfig & {
   npm: string;
   name: string;
-  options: Options;
-  models: RedModels;
+  options: { baseURL: string; apiKey: string };
+  models: Record<string, OpenCodeModel>;
 };
 
-type YellowModels = Record<string, OpenCodeModel>;
-
-type UiOYellow = {
+type UiOClaude = OpenCodeProviderConfig & {
   npm: string;
   name: string;
-  options: Options;
-  models: YellowModels;
-};
-
-// --- claude
-
-type ClaudeHeaders = {
-  Authorization: string;
-};
-
-type ClaudeOptions = {
-  baseURL: string;
-  headers: ClaudeHeaders;
-};
-
-type ClaudeModels = {
-  "claude-fable-5": OpenCodeModel;
-  "claude-haiku-4-5": OpenCodeModel;
-  "claude-opus-4-8": OpenCodeModel;
-  "claude-opus-5": OpenCodeModel;
-  "claude-sonnet-4-6": OpenCodeModel;
-  "claude-sonnet-5": OpenCodeModel;
-};
-
-type UiOClaude = {
-  npm: string;
-  name: string;
-  options: ClaudeOptions;
-  models: ClaudeModels;
+  options: { baseURL: string; headers: { Authorization: string } };
+  models: Record<string, OpenCodeModel>;
 };
 
 export type Provider = {
-  "UiO red": UiORed;
-  "UiO yellow": UiOYellow;
+  "UiO red": UiOProvider;
+  "UiO yellow": UiOProvider;
   "UiO-Claude": UiOClaude;
 };
