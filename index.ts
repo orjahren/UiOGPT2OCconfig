@@ -1,85 +1,114 @@
-import type {
-  MeModelsResponse,
-  ModelCategory,
-  OpenCodeConfig,
-  Provider,
-} from "./types";
-import { sampleResponse } from "./me";
+import { lstat, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { isAbsolute, join, resolve } from "node:path";
 import baseConfig from "./baseConfig";
-import {
-  getModelsByCategory,
-  meModelToOpenCodeModel,
-  setGreenClaudeAPIKey,
-} from "./utils";
+import { sampleResponse } from "./me";
+import { createConfig, providerDetails } from "./config";
+import type { ModelCategory } from "./types";
+import { getApiKeyName } from "./utils";
 
-import { writeFileSync } from "node:fs";
-
-const BLACKLISTED_PROVIDERS: (keyof Provider)[] = ["UiO-Claude"];
-
-const OUTPUT_FILE_NAME = "processed-opencode-config.json";
-
-// TODO: Confirm the units for inputCost/outputCost before mapping to OpenCode cost.
-// TODO: Confirm whether maxTokens means context window or maximum output.
-const injectAdditionalModels = (
-  baseConfig: OpenCodeConfig,
-  myModels: MeModelsResponse,
-): OpenCodeConfig => {
-  const { yellow: yellowModels, red: redModels } =
-    getModelsByCategory(myModels);
-  const hydratedConfig = { ...baseConfig };
-  const providers: [ModelCategory, "UiO yellow" | "UiO red"][] = [
-    ["yellow", "UiO yellow"],
-    ["red", "UiO red"],
-  ];
-  for (const [category, provider] of providers) {
-    if (BLACKLISTED_PROVIDERS.includes(provider as keyof Provider)) {
-      // Vi vil ikke røre Claude-ting...
-      continue;
-    }
-
-    const meModels = category === "yellow" ? yellowModels : redModels;
-    const existingModels = baseConfig.provider[provider].models;
-    console.log("Existing models for", category, ":", existingModels);
-
-    const convertedMeModels = Object.fromEntries(
-      meModels.map(meModelToOpenCodeModel),
-    );
-    console.log("Converted models for", category, ":", convertedMeModels);
-
-    const allModels = { ...existingModels, ...convertedMeModels };
-    console.log("Merged models for", category, ":", allModels);
-
-    const sortedModels = Object.fromEntries(
-      Object.keys(allModels)
-        .sort()
-        .map((key) => [key, allModels[key]]),
-    );
-
-    hydratedConfig.provider[provider].models = sortedModels;
-
-    // @ts-expect-error TODO: category funker dårlig fordi vi ikke håndterer Claude/green her
-    setApiKeyByColourAndProvider(hydratedConfig, category, provider);
+const main = async () => {
+  const prompts = await import("@clack/prompts");
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    throw new Error("Interactive setup requires a terminal. Run make run in a terminal.");
   }
 
-  // Claude edge case :')
-  // TODO: Burde gjøre dette som et steg i den generelle løkken over?
-  setGreenClaudeAPIKey(hydratedConfig);
-
-  return hydratedConfig;
-};
-
-const main = () => {
-  const myModels = sampleResponse;
-  const dirtyConfig = injectAdditionalModels(baseConfig, myModels);
-  console.log("Dirty config generated:");
-  console.log(dirtyConfig);
-  console.log(JSON.stringify(dirtyConfig, null, 2));
-
-  writeFileSync("./" + OUTPUT_FILE_NAME, JSON.stringify(dirtyConfig, null, 2));
-  writeFileSync(
-    // "~/.config/opencode/" + OUTPUT_FILE_NAME,
-    "/home/oliverrj/.config/opencode/" + OUTPUT_FILE_NAME,
-    JSON.stringify(dirtyConfig, null, 2),
+  prompts.intro("GPT UiO to OpenCode");
+  prompts.note(
+    (["red", "yellow", "green"] as const)
+      .map((category) => {
+        const name = getApiKeyName(category);
+        return `${name}: ${process.env[name]?.trim() ? "set" : "not set"}`;
+      })
+      .join("\n"),
+    "API key environment variables",
   );
+  prompts.log.info("Using the bundled sample model list, not the live UiO API.");
+
+  const providers = await prompts.multiselect<ModelCategory>({
+    message: "Which providers should be included?",
+    options: (["red", "yellow", "green"] as const).map((category) => ({
+      value: category,
+      label: providerDetails[category],
+    })),
+    initialValues: ["red", "yellow", "green"],
+    required: true,
+  });
+  if (prompts.isCancel(providers)) {
+    prompts.cancel("No config was written.");
+    return;
+  }
+
+  const includeDeprecated = await prompts.confirm({
+    message: "Include deprecated models in the model picker?",
+    initialValue: false,
+  });
+  if (prompts.isCancel(includeDeprecated)) {
+    prompts.cancel("No config was written.");
+    return;
+  }
+
+  const output = await prompts.text({
+    message: "Where should the generated config be written?",
+    initialValue: "./processed-opencode-config.json",
+    validate: (value) => (value?.trim() ? undefined : "Enter an output path."),
+  });
+  if (prompts.isCancel(output)) {
+    prompts.cancel("No config was written.");
+    return;
+  }
+
+  const trimmedOutput = output.trim();
+  const path = trimmedOutput === "~"
+    ? homedir()
+    : trimmedOutput.startsWith("~/")
+      ? join(homedir(), trimmedOutput.slice(2))
+      : isAbsolute(trimmedOutput) ? trimmedOutput : resolve(trimmedOutput);
+
+  let exists = false;
+  try {
+    await lstat(path);
+    exists = true;
+  } catch (error) {
+    if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) {
+      throw error;
+    }
+  }
+
+  const config = createConfig(baseConfig, sampleResponse, providers, includeDeprecated);
+  const missingKeys = providers
+    .map(getApiKeyName)
+    .filter((name) => !process.env[name]?.trim());
+  const summary = providers.map((category) => {
+    const name = providerDetails[category];
+    return `${name}: ${Object.keys(config.provider[name]?.models ?? {}).length} models`;
+  });
+  summary.push(`Output: ${path}`);
+  if (exists) summary.push("The existing file will be replaced.");
+  prompts.note(summary.join("\n"), "Preview");
+  if (missingKeys.length > 0) {
+    prompts.log.warn(`Missing environment variables: ${missingKeys.join(", ")}`);
+  }
+  prompts.log.info("The output references environment variables; OpenCode must have them set.");
+  prompts.log.info("OpenCode automatically loads opencode.json(c) only in supported config locations.");
+
+  const confirmed = await prompts.confirm({
+    message: exists ? "Replace this file?" : "Write this file?",
+    initialValue: false,
+  });
+  if (prompts.isCancel(confirmed) || !confirmed) {
+    prompts.cancel("No config was written.");
+    return;
+  }
+
+  await writeFile(path, JSON.stringify(config, null, 2) + "\n", {
+    encoding: "utf8",
+    flag: exists ? "w" : "wx",
+  });
+  prompts.outro(`Config written to ${path}`);
 };
-main();
+
+main().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : error);
+  process.exitCode = 1;
+});
