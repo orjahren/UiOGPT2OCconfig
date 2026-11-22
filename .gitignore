@@ -1,0 +1,4 @@
+node_modules/
+dist/
+processed-opencode-config.json
+package-lock.json
