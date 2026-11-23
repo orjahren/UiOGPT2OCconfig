@@ -54,6 +54,13 @@ They must also be available to the OpenCode process, including its background
 service if you use one. Missing keys produce a warning and can be set later.
 The green value is used as the Claude provider's `Authorization` header.
 
+If Claude reports a missing `Authorization` header, try `opencode --standalone`
+from a terminal where `GPT_UIO_GREEN_KEY` is exported. If that works, the shared
+OpenCode service may have started without the key. Restart it with
+`opencode service restart` from that environment; this affects other clients
+using the shared service. If the service is managed separately, ensure the key
+is available in its startup environment.
+
 ## Use the config
 
 By default, the wizard writes `processed-opencode-config.json`. OpenCode does
